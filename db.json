@@ -1,0 +1,25 @@
+{
+    "teams": [
+        {
+            "id": 1,
+            "nome": "team fs07",
+            "capacidade": 20
+        },
+        {
+            "id": 2,
+            "nome": "team fs31",
+            "capacidade": 20
+        },
+        {
+            "id": 3,
+            "nome": "team fs15",
+            "capacidade": 30
+        }
+    ], 
+    "participante": [
+        {
+            "id": 1,
+            "nome": "Fernando"
+        }
+    ]
+}
