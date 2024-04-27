@@ -1,16 +1,47 @@
 {
   "teams": [
     {
-      "id": "f32f",
-      "nome": "Team Bruno",
-      "capacidade": "12",
-      "participantes": []
+      "id": "f237",
+      "participantes": [
+        "eu",
+        "tu",
+        "ele",
+        "nos",
+        "vos",
+        "eles"
+      ],
+      "nome": "Hello",
+      "capacidade": "10"
     },
     {
-      "id": "752c",
-      "nome": "Team Fernando",
-      "capacidade": "12",
-      "participantes": []
+      "id": "9d6c",
+      "participantes": [],
+      "nome": "Fernando",
+      "capacidade": "10"
+    },
+    {
+      "id": "d955",
+      "participantes": [],
+      "nome": "Bruno",
+      "capacidade": "09"
+    },
+    {
+      "id": "7d05",
+      "participantes": [],
+      "nome": "Felipe",
+      "capacidade": "07"
+    },
+    {
+      "id": "a62f",
+      "participantes": [],
+      "nome": "Thor",
+      "capacidade": "11"
+    },
+    {
+      "id": "e6fd",
+      "participantes": [],
+      "nome": "João",
+      "capacidade": "13"
     }
   ]
 }

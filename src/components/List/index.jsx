@@ -1,21 +1,29 @@
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Sidebar } from "primereact/sidebar";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { InputText } from "primereact/inputtext";
 import { InputMask } from "primereact/inputmask";
 import { useForm } from "react-hook-form";
+import { FilterContext } from "../../App";
 const List = () => {
 
     const [mostrarSidebar, setMostrarSidebar] = useState(false);
     const [mostrarSidebarAdd, setMostrarSidebarAdd] = useState(false);
     const [mostrarDialog, setMostrarDialog] = useState(false);
     const [teams, setTeams] = useState([]);
+    const { filter } = useContext(FilterContext);
+    const [teamsFiltered, setTeamsFiltered] = useState([]);
+    const teamSelected = useRef();
 
-    const { register, handleSubmit, reset } = useForm();
-    const { register: registerP, handleSubmit: handleSubmitP , reset: resetP setValue:  } = useForm();
+    const { register, handleSubmit, reset } = useForm({
+        defaultValues: {
+            participantes: []
+        }
+    });
+    const { register: registerP, handleSubmit: handleSubmitP , reset: resetP, setValue: setValueP } = useForm();
 
     async function cadastrar(dados) {
         const request = await fetch("http://localhost:3000/teams",{
@@ -26,7 +34,6 @@ const List = () => {
             body: JSON.stringify(dados)
         })
         const response = await request.json();
-        
         if(response){
             reset();
             setMostrarSidebar(false);
@@ -34,8 +41,21 @@ const List = () => {
         }
     }
 
-    function addParticipante(dados){
-
+    async function addParticipante(dados){
+        const team = teams.find(team => team.id == dados.id);
+        team.participantes.push(dados.nome);
+        const request = await fetch(`http://localhost:3000/teams/${dados.id}`, {
+            method: "put",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(team)
+        });
+        const response = await request.json();
+            if(response){
+                resetP();
+                buscarTeams();
+            }
     }
 
     function confirmacao(id){
@@ -65,13 +85,23 @@ const List = () => {
         buscarTeams();
     }, []);
 
+    useEffect(() => {
+        if(filter != ""){
+            setTeamsFiltered([...teams.filter((team) => team.nome.toLowerCase().includes(filter.toLowerCase()))]);
+            return;
+        }
+        setTeamsFiltered(teams)
+    }, [filter, teams])
 
-    const titulo = (nome) => (
+    const titulo = (nome, id) => (
         <div className="flex justify-content-between align-items-center text-lg">
             {nome}
             <i 
-            className="pi pi-eye cursor-pointer" 
-            onClick={() => setMostrarDialog(true)}
+            className="pi pi-eye cursor-pointer"
+            onClick={() => {
+                teamSelected.current = id;
+                setMostrarDialog(true)
+            }}
             ></i>
         </div>
     );
@@ -81,7 +111,7 @@ const List = () => {
             label="Adicionar" 
             className="flex-1 px-0" 
             onClick={() => {
-                setValueP('id', id)
+                setValueP('id', id);
                 setMostrarSidebarAdd(true);
             }}
                 />
@@ -99,11 +129,11 @@ const List = () => {
                 />
             </h2>
             {teams &&
-                teams.map((team) => (
+                teamsFiltered.map((team) => (
             <Card 
             key={`team${team.id}`}
             style={{width: `calc(20% - 13px)`}}
-             title={titulo(team.nome)} 
+             title={titulo(team.nome, team.id)} 
              footer={footer(team.id)}
              >
                 <h1 className="mx-auto flex flex-column text-center">
@@ -147,10 +177,11 @@ const List = () => {
             <Sidebar 
                 visible={mostrarSidebarAdd}
                 onHide={() => setMostrarSidebarAdd(false)}
-                position="left"
+                position="right"
             >
             <form onSubmit={handleSubmitP(addParticipante)}>
                 <h3>Adicionar</h3>
+                <input type="hidden"{...registerP('id')} />
                 <label 
                 htmlFor="nome" 
                 className="uppercase text-sm font-bold mb-2 block"
@@ -174,7 +205,13 @@ const List = () => {
                 onHide={() => setMostrarDialog(false)}
                 position="top"
             >
-                Lista de nomes do time
+                Lista de nomes do time: 
+                {
+                    teamSelected.current && teams.find(team => team.id ==  teamSelected.current).participantes.map((nome, index) => (
+                        <h5 key={index} className="flex justify-content-between align-items-center">
+                        {nome} <i className="pi pi-trash" onClick={() => alert("deletou")}></i></h5>
+                    ))
+                }
             </Dialog>
             <ConfirmDialog />
         </section>
